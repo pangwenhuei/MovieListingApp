@@ -13,37 +13,36 @@ protocol FetchMovie {
 
 class APIClient {
     var url = "https://api.themoviedb.org/3/trending/movie/day"
+    var apiAccessToken = "your_api_access_token_here"
     
     func fetchMovies() async throws -> [Movie] {
         do {
-            //setup url request
-            guard let request = URLRequest(url: URL(string: url)!) as URLRequest? else {
-                throw APIError.invalidURL
-            }
-            
-            //call get using urlsession
-            let task = URLSession.shared.dataTask(with: request)
-            task.resume()
-            
-            guard let response = task.response as? HTTPURLResponse, response.statusCode == 200 else {
-                throw APIError.invalidResponse
-            }
-            //decode the response
+            let url = URL(string: "https://api.themoviedb.org/3/movie/upcoming")!
+            var components = URLComponents(url: url, resolvingAgainstBaseURL: true)!
+            let queryItems: [URLQueryItem] = [
+              URLQueryItem(name: "language", value: "en-US"),
+              URLQueryItem(name: "page", value: "1"),
+            ]
+            components.queryItems = components.queryItems.map { $0 + queryItems } ?? queryItems
+
+            var request = URLRequest(url: components.url!)
+            request.httpMethod = "GET"
+            request.timeoutInterval = 10
+            request.allHTTPHeaderFields = [
+              "accept": "application/json",
+              "Authorization": "Bearer \(apiAccessToken)"
+            ]
+
+            let (data, _) = try await URLSession.shared.data(for: request)
             let decoder = JSONDecoder()
             decoder.keyDecodingStrategy = .convertFromSnakeCase
-            let data = response.value(forKey: "results") as? Data ?? Data()
-            let result = try decoder.decode([Movie].self, from: data)
-            //return movie
-            return result
+            let result = try decoder.decode(MovieResponse.self, from: data)
+            let movies = result.results.map { Movie(from: $0) }
+            return movies
+        } catch {
+            throw error
         }
         
     }
     
 }
-
-/*
- --request GET \
-     --url https://api.themoviedb.org/3/trending/movie/day \
-     --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlOThkMTVjZjBlZmU3NGZjNWUxN2FiODVlZWNiZDRmYyIsIm5iZiI6MTc3NTAxNzk1My41NzYsInN1YiI6IjY5Y2M5ZmUxZGFkZDUxZGY4MWM5ZDQ0MiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.1UXZUr3qUwngQBBCkoIMQFmrEEMKp9Zmqti_RCFph7k' \
-     --header 'accept: application/json'
- */
