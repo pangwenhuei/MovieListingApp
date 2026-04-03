@@ -7,10 +7,6 @@
 
 import Foundation
 
-protocol FetchMovie {
-    func fetchMovies() -> [Movie]
-}
-
 class APIClient {
     var url = "https://api.themoviedb.org/3/trending/movie/day"
     var apiAccessToken = "your_api_access_token_here"
