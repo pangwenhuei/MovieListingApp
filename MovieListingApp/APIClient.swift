@@ -34,11 +34,11 @@ class APIClient {
             ]
 
             let (data, _) = try await URLSession.shared.data(for: request)
+            print(String(decoding: data, as: UTF8.self))
             let decoder = JSONDecoder()
             decoder.keyDecodingStrategy = .convertFromSnakeCase
-            let result = try decoder.decode(MovieResponse.self, from: data)
-            let movies = result.results.map { Movie(from: $0) }
-            return movies
+            let result = try decoder.decode(MovieResponseModel.self, from: data)
+            return result.results
         } catch {
             throw error
         }
