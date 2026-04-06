@@ -39,7 +39,7 @@ struct ContentView: View {
         }
         .onAppear() {
             Task {
-                try await APIClient().fetchMovies()
+//                try await APIClient().fetchMovies()
             }
         }
     }

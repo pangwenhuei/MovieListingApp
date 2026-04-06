@@ -14,12 +14,24 @@ struct MovieResponseModel: Decodable {
 
 struct Movie: Decodable, Identifiable, Hashable {
     let id: Int?
-    let releaseDate, title, posterPath: String?
+    let posterPath, releaseDate, title: String?
 
     enum CodingKeys: String, CodingKey {
         case id
         case posterPath
         case releaseDate
         case title
+    }
+}
+
+extension Movie {
+
+    static var dummy: Movie {
+        .init(
+            id: 693134,
+            posterPath: "/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg",
+            releaseDate: "2024-02-27",
+            title: "Dune: Part Two",
+        )
     }
 }
