@@ -202,7 +202,7 @@ struct HomeView: View {
     // MARK: - Empty state
     var emptyStateView: some View {
         VStack(spacing: 12) {
-            Image(systemName: "film.slash")
+            Image(systemName: "video.slash")
                 .font(.system(size: 40))
                 .foregroundStyle(.secondary)
             Text("No movies found")

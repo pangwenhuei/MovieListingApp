@@ -105,6 +105,7 @@ class HomeViewModel {
             group.addTask { await self.loadTopRatedMovies() }
             group.addTask { await self.loadUpcomingMovies() }
         }
+        startPolling()
     }
 
     func loadMoreIfNeeded() async {
@@ -156,6 +157,22 @@ class HomeViewModel {
         } catch {
             print("loadUpcoming error:", error)
         }
+    }
+    
+    private var pollingTask: Task<Void, Never>?
+
+    func startPolling(interval: TimeInterval = 60) {
+        pollingTask = Task {
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: UInt64(interval * 1_000_000_000))
+                await loadPopularMovies(page: 1)
+            }
+        }
+    }
+
+    func stopPolling() {
+        pollingTask?.cancel()
+        pollingTask = nil
     }
 }
 
