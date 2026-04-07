@@ -10,12 +10,13 @@ import SwiftData
 
 struct MovieResponseModel: Decodable {
     let results: [Movie]
+    let totalPages: Int?
 }
-
+ 
 struct Movie: Decodable, Identifiable, Hashable {
     let id: Int?
     let posterPath, releaseDate, title: String?
-
+ 
     enum CodingKeys: String, CodingKey {
         case id
         case posterPath
@@ -23,9 +24,9 @@ struct Movie: Decodable, Identifiable, Hashable {
         case title
     }
 }
-
+ 
 extension Movie {
-
+ 
     static var dummy: Movie {
         .init(
             id: 693134,

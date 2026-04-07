@@ -7,12 +7,12 @@
 
 
 import SwiftUI
-
+ 
 struct MovieView: View {
-
+ 
     var title: String
     var movies: [Movie]
-
+ 
     var body: some View {
         VStack(alignment: .center) {
             Text(title)
@@ -22,19 +22,17 @@ struct MovieView: View {
             popularView
         }
     }
-
+ 
     var popularView: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            LazyVStack(alignment: .center) {
-                ForEach(movies) { movie in
-                    HomeRowView(movie: movie)
-                        .foregroundColor(.primary)
-                }
+        LazyVStack(alignment: .center) {
+            ForEach(movies) { movie in
+                HomeRowView(movie: movie)
+                    .foregroundColor(.primary)
             }
         }
     }
 }
-
+ 
 #Preview {
     MovieView(title: "Populars", movies: [.dummy])
 }
