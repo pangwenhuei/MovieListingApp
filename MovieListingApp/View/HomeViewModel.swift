@@ -34,6 +34,8 @@ class HomeViewModel {
     var selectedYear: Int? = nil
     var startDate: Date? = nil
     var endDate: Date? = nil
+    
+    private let cache = MovieCacheManager.shared
 
     //extracts unique release years from fetched data to populate the year picker dynamically
     var allYears: [Int] {
@@ -129,31 +131,52 @@ class HomeViewModel {
     }
 
     private func loadPopularMovies(page: Int) async {
+        // Only serve cache on first page loads, not pagination
+        if page == 1, let cached = cache.cachedMovies(for: .popular, ttl: MovieCacheManager.popularTTL) {
+            allPopulars = cached
+            // Still fetch fresh data in the background
+            Task { await fetchAndCachePopular(page: 1) }
+            return
+        }
+        await fetchAndCachePopular(page: page)
+    }
+    
+    private func fetchAndCachePopular(page: Int) async {
         do {
             let response: MovieResponseModel = try await apiManager.request(
-                type: MovieEndPoint.popular,
-                page: page
+                type: MovieEndPoint.popular, page: page
             )
             allPopulars = response.results
             totalPages = response.totalPages ?? 1
+            if page == 1 { cache.cache(response.results, for: .popular) }
         } catch {
             print("loadPopular error:", error)
         }
     }
 
     private func loadTopRatedMovies() async {
+        if let cached = cache.cachedMovies(for: .topRated, ttl: MovieCacheManager.topRatedTTL) {
+            topRatedMovies = cached
+            return
+        }
         do {
             let response: MovieResponseModel = try await apiManager.request(type: MovieEndPoint.topRated)
             topRatedMovies = response.results
+            cache.cache(response.results, for: .topRated)
         } catch {
             print("loadTopRated error:", error)
         }
     }
 
     private func loadUpcomingMovies() async {
+        if let cached = cache.cachedMovies(for: .upcoming, ttl: MovieCacheManager.upcomingTTL) {
+            upcomingMovies = cached
+            return
+        }
         do {
             let response: MovieResponseModel = try await apiManager.request(type: MovieEndPoint.upcoming)
             upcomingMovies = response.results
+            cache.cache(response.results, for: .upcoming)
         } catch {
             print("loadUpcoming error:", error)
         }

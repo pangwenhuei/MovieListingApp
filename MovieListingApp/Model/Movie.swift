@@ -8,12 +8,12 @@
 import Foundation
 import SwiftData
 
-struct MovieResponseModel: Decodable {
+struct MovieResponseModel: Codable {
     let results: [Movie]
     let totalPages: Int?
 }
  
-struct Movie: Decodable, Identifiable, Hashable {
+struct Movie: Codable, Identifiable, Hashable {
     let id: Int?
     let posterPath, releaseDate, title: String?
  
